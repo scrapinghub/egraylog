@@ -10,11 +10,17 @@ start_link() ->
 
 
 init([]) ->
-    Config = application:get_all_env(egraylog),
-    Logger = {egraylog_logger,
-              {egraylog_logger, start_link, [Config]},
-              permanent,
-              brutal_kill,
-              worker,
-              [egraylog_logger]},
-    {ok, {{one_for_one, 4, 3600}, [Logger]}}.
+    TransportSup = {egraylog_transport_sup, 
+                    {egraylog_transport_sup, start_link, []},
+                    permanent,
+                    5000,
+                    supervisor,
+                    [egraylog_transport_sup]},
+    Logger       = {egraylog_logger,
+                    {egraylog_logger, start_link, []},
+                    permanent,
+                    brutal_kill,
+                    worker,
+                    [egraylog_logger]},
+                    
+    {ok, {{one_for_one, 4, 3600}, [TransportSup, Logger]}}.
