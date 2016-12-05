@@ -48,8 +48,6 @@ init([]) ->
     end.
 
 
-
-
 handle_info({'DOWN', _Ref, _Type, Pid, Reason}, State = #state{transport_pid = Pid}) ->
     error_logger:error_msg("transport process down with reason: ~p~n", [Reason]),
     {stop, normal, State};
@@ -104,9 +102,13 @@ init_connection(TransportOpts) ->
       Config   :: proplists:proplist(),
       Hostname :: binary().
 get_hostname(Config) ->
-    case proplists:get_value(hostname, Config) of
+    RawHostname = case proplists:get_value(hostname, Config) of
         {M, F, A} -> M:F(A);
         undefined -> list_to_binary(string:strip(os:cmd("hostname"), right, $\n))
+    end,
+    case RawHostname of
+        _ when is_list(RawHostName)   -> unicode:characters_to_binary(RawHostName);
+        _ when is_binary(RawHostname) -> RawHostname
     end.
 
 
@@ -151,7 +153,6 @@ do_handle_event(State = #state{hostname = Host, transport_pid = TransportPid}, {
 %%       6 -> Informational: Informational messages
 %%       7 -> Debug: Debug-level messages
 %% @end
-
 map_level(error)          -> 3;
 map_level(error_report)   -> 3;
 map_level(warning_msg)    -> 4;
@@ -159,13 +160,6 @@ map_level(warning_report) -> 4;
 map_level(info_msg)       -> 6;
 map_level(info_report)    -> 6;
 map_level(_)              -> 7.
-
-
-
-to_binary(Atom) when is_atom(Atom) ->
-    atom_to_binary(Atom, latin1);
-to_binary(String) when is_list(String) ->
-    unicode:characters_to_binary(String).
 
 
 -spec prepare_event(Event) -> {Head, Body} | ignore when
@@ -179,7 +173,6 @@ prepare_event({error_report,   _, {_, Type, Args}})   -> {fheader(error_report, 
 prepare_event({info_report,    _, {_, Type, Args}})   -> {fheader(info_report, Type),    freport(Type, Args)};
 prepare_event({warning_report, _, {_, Type, Args}})   -> {fheader(warning_report, Type), freport(Type, Args)};
 prepare_event(_)                                      -> ignore.
-
 
 
 -spec fheader(EventType, Format) -> Header when
