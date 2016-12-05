@@ -102,13 +102,13 @@ init_connection(TransportOpts) ->
       Config   :: proplists:proplist(),
       Hostname :: binary().
 get_hostname(Config) ->
-    RawHostname = case proplists:get_value(hostname, Config) of
+    RawHostName = case proplists:get_value(hostname, Config) of
         {M, F, A} -> M:F(A);
         undefined -> list_to_binary(string:strip(os:cmd("hostname"), right, $\n))
     end,
-    case RawHostname of
+    case RawHostName of
         _ when is_list(RawHostName)   -> unicode:characters_to_binary(RawHostName);
-        _ when is_binary(RawHostname) -> RawHostname
+        _ when is_binary(RawHostName) -> RawHostName
     end.
 
 
