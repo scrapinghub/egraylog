@@ -11,3 +11,4 @@ rel/example_project
 egraylog.d
 *.swp
 *.swo
+.erlang.mk/
