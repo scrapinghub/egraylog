@@ -1,7 +1,6 @@
 PROJECT = egraylog
 PROJECT_DESCRIPTION = graylog logger
-PROJECT_VERSION = 0.0.1
-PROJECT_HASH = $(shell git rev-parse HEAD | cut -c1-6)
+PROJECT_VERSION = 0.1.0
 
 ERLC_OPTS = -W0
 SHELL_OPTS = -s egraylog_app -config config/devel.config
