@@ -13,9 +13,6 @@
          handle_info/2, code_change/3, terminate/2]).
 
 
--define(TIMEOUT, 15000).
-
-
 -type transport()     :: tcp
                        | ssl.
 -type transport_mod() :: gen_tcp

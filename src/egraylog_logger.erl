@@ -215,7 +215,7 @@ fmessage(Format, Args) ->
 freport(progress, Args) ->
     [io_lib:format("~w: ~p~n", [Tag, Data]) || {Tag, Data} <- Args];
 freport(supervisor_report, Args) ->
-    Args = [
+    FormatArgs = [
         proplists:get_value(supervisor, Args, ""),
         proplists:get_value(errorContext, Args, ""),
         proplists:get_value(reason, Args, ""),
@@ -225,7 +225,7 @@ freport(supervisor_report, Args) ->
              "Context:    ~p~n"
              "Reason:     ~80.18p~n"
              "Offender:   ~80.18p",
-    io_lib:format(Format, Args);
+    io_lib:format(Format, FormatArgs);
 freport(crash_report, Args) ->
     Format = proc_lib:format(Args, latin1, unlimited),
     io_lib:format("~s~n", [Format]);
