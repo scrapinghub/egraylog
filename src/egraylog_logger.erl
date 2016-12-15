@@ -104,7 +104,7 @@ init_connection(TransportOpts) ->
 get_hostname(Config) ->
     RawHostName = case proplists:get_value(hostname, Config) of
         undefined                       -> string:strip(os:cmd("hostname"), right, $\n);
-        {M, F, A}                       -> M:F(A);
+        {M, F, A}                       -> apply(M,F,A);
         HostName when is_list(HostName) -> HostName
     end,
     case RawHostName of
