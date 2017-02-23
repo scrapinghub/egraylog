@@ -130,7 +130,7 @@ do_handle_event(State = #state{hostname = Host, transport_pid = TransportPid}, {
                 {level,         map_level(EventType)},
                 {short_message, unicode:characters_to_binary(Head)},
                 {full_message,  unicode:characters_to_binary(Body)},
-                {timestamp,     list_to_binary(io_lib:format("~f", [os:system_time() / 1000000000]))}
+                {timestamp,     timestamp()}
             ]},
             Json = jiffy:encode(JsonObj),
             ok = egraylog_transport:send_async(TransportPid, Json)
@@ -236,3 +236,9 @@ freport(Template, Args) when is_list(Template) ->
     end;
 freport(_, _) ->
     ignore.
+
+
+timestamp() ->
+    {A, B, C} = os:timestamp(),
+    Time = (A * 1000000000000 + B * 1000000 + C) / 1000000,
+    list_to_binary(io_lib:format("~f", [Time])).
