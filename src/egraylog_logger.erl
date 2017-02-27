@@ -234,6 +234,8 @@ freport(Template, Args) when is_list(Template) ->
         {'EXIT', _} -> io_lib:format("FORMAT ERROR: ~p - ~p", [Template, Args]);
         Message     -> Message
     end;
+freport(Type, Msg) when Type == std_info; Type == std_error; Type == std_warning ->
+    Msg;
 freport(_, _) ->
     ignore.
 

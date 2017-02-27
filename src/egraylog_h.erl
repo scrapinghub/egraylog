@@ -23,8 +23,6 @@ init(_) ->
 
 handle_event(Event, State) ->
     ok = egraylog_logger:log(Event),
-    {ok, State};
-handle_event(_Event, State) ->
     {ok, State}.
 
 
