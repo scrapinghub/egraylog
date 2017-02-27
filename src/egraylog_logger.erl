@@ -227,7 +227,7 @@ freport(supervisor_report, Args) ->
              "Offender:   ~80.18p",
     io_lib:format(Format, FormatArgs);
 freport(crash_report, Args) ->
-    Format = proc_lib:format(Args, latin1, unlimited),
+    Format = proc_lib:format(Args, latin1),
     io_lib:format("~s~n", [Format]);
 freport(Template, Args) when is_list(Template) ->
     case catch io_lib:format(Template, Args) of
