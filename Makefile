@@ -1,6 +1,6 @@
 PROJECT = egraylog
 PROJECT_DESCRIPTION = graylog logger
-PROJECT_VERSION = 0.2.1
+PROJECT_VERSION = 0.2.2
 
 ERLC_OPTS = -W0
 SHELL_OPTS = -s egraylog_app -config config/devel.config
