@@ -78,7 +78,7 @@ handle_info({'DOWN', _Ref, _Type, Pid, Reason}, State = #state{parent_pid = Pid}
     {stop, normal, State};
 handle_info(init_connection, State) ->
     {noreply, init_connection(State)};
-handle_info({Closed, Sock}, State) when Closed == tcp_closed; Closed == ssl_closed ->
+handle_info({Closed, _Sock}, State) when Closed == tcp_closed; Closed == ssl_closed ->
     {noreply, init_connection_timer(State#state{socket = undefined, connected = false})};
 handle_info(Msg, State) ->
     error_logger:error_msg("Unexpected message ~tp~n", [Msg]),
@@ -171,7 +171,7 @@ do_send(State = #state{transport_mod = TMod, socket = Socket}, Event) ->
     case TMod:send(Socket, <<Event/binary, 0:8>>) of
         ok ->
             {ok, State};
-        {error, Reason} = R ->
+        {error, _Reason} = R ->
             %% socket close event should arrive, so we don't bother with closing socket here
             {R, State#state{connected = false}}
     end.

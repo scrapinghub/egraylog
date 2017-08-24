@@ -108,7 +108,7 @@ get_hostname(Config) ->
         HostName when is_list(HostName) -> HostName
     end,
     case RawHostName of
-        _ when is_list(RawHostName)   -> unicode:characters_to_binary(RawHostName);
+        _ when is_list(RawHostName)   -> safe_to_unicode(RawHostName);
         _ when is_binary(RawHostName) -> RawHostName
     end.
 
@@ -117,7 +117,7 @@ get_hostname(Config) ->
       State    :: #state{},
       Event    :: tuple(),
       Result   :: ok.
-do_handle_event(State = #state{hostname = Host, transport_pid = TransportPid}, {EventType, _GL, _EventData} = Event) ->
+do_handle_event(#state{hostname = Host, transport_pid = TransportPid}, {EventType, _GL, _EventData} = Event) ->
     case prepare_event(Event) of
         {_, ignore} ->
             ok;
@@ -128,8 +128,8 @@ do_handle_event(State = #state{hostname = Host, transport_pid = TransportPid}, {
                 {version,       <<"1.1">>},
                 {host,          Host},
                 {level,         map_level(EventType)},
-                {short_message, unicode:characters_to_binary(Head)},
-                {full_message,  unicode:characters_to_binary(Body)},
+                {short_message, safe_to_unicode(Head)},
+                {full_message,  safe_to_unicode(Body)},
                 {timestamp,     timestamp()}
             ]},
             Json = jiffy:encode(JsonObj),
@@ -244,3 +244,11 @@ timestamp() ->
     {A, B, C} = os:timestamp(),
     Time = (A * 1000000000000 + B * 1000000 + C) / 1000000,
     list_to_binary(io_lib:format("~f", [Time])).
+
+
+%% FIXME:
+safe_to_unicode(Message) ->
+    case catch unicode:characters_to_binary(Message) of
+        {'EXIT', _} -> unicode:characters_to_binary(io_lib:format("ENCODE ERROR: ~p", [Message]));
+        Encoded -> Encoded
+    end.
