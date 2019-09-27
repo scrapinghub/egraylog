@@ -1,0 +1,27 @@
+version: 2
+workflows:
+  version: 2
+  test:
+    jobs:
+      - otp-20
+      - otp-21
+      - otp-22
+
+jobs:
+  otp-20: &test-template
+    docker:
+      - image: circleci/erlang:20.3.8.22
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Run dialyzer
+          command: make dialyze
+  otp-21:
+    <<: *test-template
+    docker:
+      - image: circleci/erlang:21.3.8
+  otp-22:
+    <<: *test-template
+    docker:
+      - image: circleci/erlang:22.1
