@@ -24,13 +24,17 @@
                     | inet:ip_address(),
     port           :: inet:port_number(),
     connected      :: boolean(),
-    connect_timer  :: reference(),
-    socket         :: gen_tcp:socket()
+    connect_timer  :: undefined
+                    | reference(),
+    socket         :: undefined
+                    | gen_tcp:socket()
                     | ssl:sslsocket(),
     transport_mod  :: transport_mod(),
     transport_opts :: proplists:proplist()
 }).
 
+
+-type state() :: #state{}.
 
 -spec send_async(Pid, Bin) -> Result when
       Pid    :: pid(),
@@ -52,7 +56,9 @@ send(Pid, Bin) when is_binary(Bin) ->
 start_link(Config) ->
     gen_server:start_link(?MODULE, Config, []).
 
-
+-spec init(Config) -> {ok, State} when
+    Config :: proplists:proplist(),
+    State  :: state().
 init(Config) ->
     {parent_pid, ParentPid} = lists:keyfind(parent_pid, 1, Config),
     {host, Host} = lists:keyfind(host, 1, Config),
@@ -115,8 +121,8 @@ terminate(_Reason, #state{transport_mod = TMod, socket = Socket}) ->
 
 
 -spec init_connection_timer(State) -> NewState when
-      State    :: #state{},
-      NewState :: #state{}.
+      State    :: state(),
+      NewState :: state().
 init_connection_timer(State = #state{connect_timer = ConnTimer}) ->
     catch erlang:cancel_timer(ConnTimer),
     NewConnTimer = erlang:send_after(1000, self(), init_connection),
@@ -132,8 +138,8 @@ get_transport_module(ssl) -> ssl.
 
 -spec get_transport_options(TransportMod, TransportOpts) -> NewTransportOpts when
       TransportMod     :: transport_mod(),
-      TransportOpts    :: proplists:property(),
-      NewTransportOpts :: proplists:property().
+      TransportOpts    :: proplists:proplist(),
+      NewTransportOpts :: proplists:proplist().
 get_transport_options(TransportMod, TransportOpts) ->
     RawTransportOpts = [{active, true}, binary],
     case TransportMod of
@@ -143,8 +149,8 @@ get_transport_options(TransportMod, TransportOpts) ->
 
 
 -spec init_connection(State) -> NewState when
-      State    :: #state{},
-      NewState :: #state{}.
+      State    :: state(),
+      NewState :: state().
 init_connection(State = #state{connected = true}) ->
     State;
 init_connection(State = #state{transport_mod = TMod, transport_opts = TOpts, host = Host, port = Port}) ->
@@ -161,9 +167,9 @@ init_connection(State = #state{transport_mod = TMod, transport_opts = TOpts, hos
 
 
 -spec do_send(State, Event) -> Result when
-      State  :: #state{},
+      State  :: state(),
       Event  :: binary(),
-      Result :: ok.
+      Result :: {ok, state()} | {{error, term()}, state()}.
 do_send(State = #state{connected = false}, _Event) ->
     Reply = {error, not_connected},
     {Reply, State};
