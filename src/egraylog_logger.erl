@@ -119,8 +119,6 @@ get_hostname(Config) ->
       Result   :: ok.
 do_handle_event(#state{hostname = Host, transport_pid = TransportPid}, {EventType, _GL, _EventData} = Event) ->
     case prepare_event(Event) of
-        {_, ignore} ->
-            ok;
         ignore ->
             ok;
         {Head, Body} ->
@@ -177,7 +175,7 @@ prepare_event(_)                                      -> ignore.
 
 
 -spec fheader(EventType, Format) -> Header when
-      EventType :: string(),
+      EventType :: atom(),
       Format    :: atom() | string(),
       Header    :: iolist().
 fheader(error, _)                        -> "ERROR REPORT";
